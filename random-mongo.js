@@ -24,15 +24,18 @@ var config = {
 var aggregate = function (db, collection, callback) {
     db.collection(collection).aggregate(
         [
-            { $sample: { size: 3 } }, 
+           
             { $project: 
                 {
-                    Place: "$placename",
-                    State: "$admincode1",
-                    PostalCode: "$postalcode",
-                    Location: ["$latitude", "$longitude"]
+                    State: "$admincode1"//,
+                    //PostalCode: "$postalcode",
+                    //Location: ["$latitude", "$longitude"]
                 }
-            }
+            },
+            
+            
+            { $sample: { size: 10 } },
+             { $sort: {'State': 1}}
         ]).toArray(function (err, result) {
             assert.equal(err, null);
             console.log(result);
