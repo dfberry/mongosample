@@ -11,6 +11,31 @@ MongoClient options
 http://mongodb.github.io/node-mongodb-native/2.1/api/MongoClient.html#.connect
 MongoClient.connect(url, options, callback)
 
+convert to geojson
+    db.collection(collectionName).find().each(function(err, doc) {
+    
+        doc.coordinates= { location: { type: 'point', coordinates : [doc.latitude, doc.longitude]}}; // convert field to string
+        db.collection(collectionName).save(doc);
+        console.log("doc " + i++);
+    });
+
+
+mongo - $sample
+http://www.thecodebarbarian.com/node-perspective-on-mongodb-3.2-$lookup-$sample
+http://stackoverflow.com/questions/23961368/mongodb-how-create-a-new-array-field-with-the-aggregate-framework
+http://tugdualgrall.blogspot.com/2014/08/introduction-to-mongodb-geospatial.html
+
+geonear - https://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/#pipe._S_geoNear
+
+Aggregation result must be under 16MB. If you are using shards, the full data must be collected in a single point after the first $group or $sort.
+$match only purpose is to improve aggregation's power, but it has some other uses, like improve the aggregation performance.
+{$group: {_id: null, count: {$sum: 1}}}
+
+http://www.redotheweb.com/2012/10/12/mongodb-new-aggregation-framework-and-sql-side-by-side.html
+
+random - "poor randomness"
+
+
 Idea: something with webhooks - live/real-time open-source webhooks?
 moving aware from webhooks 
 
