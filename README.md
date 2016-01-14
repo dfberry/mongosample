@@ -323,8 +323,7 @@ module.exports = {
 ###Step 7: Verify the world map displays random sampling points
 Refresh the web site several times. This should show different points each time. The variation of randomness should catch your eye. Is it widely random, or not as widely random as you would like?
 
-The fine print of the $sample says the data may duplicate within a single query. On this map that would appear as less than 5 data points. Did you see that in your tests? 
-
+The fine print of the $sample says the data may duplicate within a single query. On this map that would appear as less than the number of requested data points. Did you see that in your tests? 
 
 ##How $sample impacts the results
 Now that the website works, let's play with it to see how $sample impacts the results.
@@ -332,36 +331,48 @@ Now that the website works, let's play with it to see how $sample impacts the re
 ###Understand the $sample code in /server/query.js
 The [$sample](https://docs.mongodb.org/manual/reference/operator/aggregation/sample/#pipe._S_sample) keyword controls random sampling of the query in the [aggregation pipeline](https://docs.mongodb.org/manual/core/aggregation-pipeline/). 
 
-The pipeline is a series of array elements in the **arrangeAggregationPipeline** function in the /server/query.js file. The first array element is the $project section which controls what columns to return, how they are named, and data concatenation such as first and last name. When that step is completed the next step of the pipeline will happen. 
+The pipeline used in this article is a series of array elements in the **arrangeAggregationPipeline** function in the /server/query.js file. The first array element is the $project section which controls what columns to return, and how they are named. 
 
+
+*arrangeAggregationPipeline()*
 ```
-// add sampling to aggregation pipeline array
-var arrangeAggregationPipeline = function (config, callback){
-    
-    // default pipeline aggregation for this query
     var aggregationPipeItems = [
-        { $project: // change column names for result set 
+        { $project: 
             {
-                Name: "$first_name" + ' ' + "$lastname",
-                State: "$admincode1",
-                PostalCode: "$postalcode",
+                last: "$last_name",
+                first: "$first_name",
                 lat: "$latitude",
                 lon:  "$longitude",
-                Location: ["$latitude", "$longitude"] 
+                Location: ["$latitude", "$longitude"],
+                _id:0 
             }
         },
-        { $sort: {'State': 1}} // sort by state
+        { $sort: {'last': 1}} // sort by last name
     ];
-    
-    // add randomizer to pipeline
-    if (config.randomsample===true){
-        var randomizer =  { $sample: { size: config.sample.size } };
-        aggregationPipeItems.splice(config.sample.index,0,randomizer);
-    }
-    callback(null, aggregationPipeItems);
-}
 ```
-The next step in the pipeline is the sorting of the data by state. Since the points are returned on a map, the sorting isn't important but the same query could also be used for a grid or spreadsheet-style layout -- where initial sorting of the data would be meaningful. 
+The next step in the pipeline is the sorting of the data by last name. If the pipeline runs this way (without $sample), all documents are returned. Alternately, if the url value for rows is zero (0), or doesn't exist, all rows will be returned.  
+ 
+![](allrows.png)
+
+Since we are just playing with the data, we can ignore the map and call the data query url directly: [http://127.0.0.1:8080/map/world/data/?rows=5](http://127.0.0.1:8080/map/world/data/?rows=5).
+
+![](/public/images/nowithnosample.png) 
+
+The location of $sample is controlled by the aggregationPipelineLocation variable in the /server/query.js. It is set to 1 so with a zero-based array, it will be applied between $project and $sort. If the code runs as supplied, the set of data is randomized, 5 documents are selected, then the 5 rows are sorted. This would be meaningful in both that the data is random, but returned sorted. 
+
+If the $sample is moved to the first position, still before sort, that same result. But, however, if the $sample is the last item, the entire set is sorted, then 5 rows selected. The requests are no longer sorted.
+
+Open /server/query.js and change the value of aggregationPipelineLocation to 2.   
+
+![](Snip20160114_8.png)
+
+
+
+
+
+Now apply the  
+
+
 
 The **config** parameter at the top of the file controls if sampling is applied, how many documents are returned, and where in the pipeline
 

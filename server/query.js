@@ -13,7 +13,7 @@ var collectionName = "mockdata";
 // Set DEFAULT Random Sampling values
 var randomsample = true;
 var sampleSize = 5;
-var aggregationPipelineLocation = 1; // 2nd item in pipeline array
+var aggregationPipelineLocation = 2; // 2nd item in pipeline array
 
 var config = {
     url: mongourl,
@@ -44,8 +44,6 @@ var arrangeAggregationPipeline = function (config, callback){
             {
                 last: "$last_name",
                 first: "$first_name",
-                
-                
                 lat: "$latitude",
                 lon:  "$longitude",
                 Location: ["$latitude", "$longitude"],
@@ -58,7 +56,8 @@ var arrangeAggregationPipeline = function (config, callback){
 
     
     // add randomizer to pipeline
-    if (config.randomsample===true){
+    
+    if ((config.randomsample===true) && (config.sample.index) && (config.sample.size)){
         var randomizer =  { $sample: { size: config.sample.size } };
         aggregationPipeItems.splice(config.sample.index,0,randomizer);
             console.log(aggregationPipeItems);
@@ -77,15 +76,25 @@ var aggregate = function (db, config, callback) {
 
 // ENTRY POINT INTO LIBRARY
 // samplesize comes in as string from web server
-var mongoQuery = function(samplesize, callback){
+var mongoQuery = function(samplesize, aggregationPipelinePosition, callback){
  
     if ((samplesize) && (samplesize>0)){
         config.randomsample=true;
         config.sample.size = samplesize;
-        config.index= 1;
+        config.sample.index= 1;
     } else {
         config.randomsample=false;
     }
+
+    if ((aggregationPipelinePosition) 
+        && (!isNaN( aggregationPipelinePosition )) 
+        && ((aggregationPipelinePosition >= 0 && aggregationPipelinePosition <= 2))){
+        console.log("setting aggregationPipelinePosition=" + aggregationPipelinePosition);
+            
+        config.sample.index = aggregationPipelinePosition;
+    } 
+    
+    console.log(JSON.stringify(config.sample)); 
  
     // connect to database, return query results
     MongoClient.connect(config.url,config.options, function (err, db) {

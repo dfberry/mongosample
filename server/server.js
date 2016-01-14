@@ -22,12 +22,18 @@ app.get('/map/world/data', function (req, res) {
     
     var queryData = url.parse(req.url, true).query;
     var rowsRequested = 0;
+    var aggregationPipelinePosition = 1; //2nd position
      
     if (queryData.rows){
         rowsRequested = parseInt(queryData.rows);
     }
+    
+    if (queryData.pos){
+        aggregationPipelinePosition = parseInt(queryData.pos);
+        console.log("server pipelineposition=" + queryData.pos);
+    } 
 
-    database.query(rowsRequested, function (err, results){
+    database.query(rowsRequested, aggregationPipelinePosition, function (err, results){
         if (results){
             res.json(results);
         } else if (err){
