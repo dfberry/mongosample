@@ -1,5 +1,3 @@
-//Lets require/import the HTTP module
-var http = require('http');
 var url = require('url');
 var database = require('./query.js')
 var fileSystem = require('fs');

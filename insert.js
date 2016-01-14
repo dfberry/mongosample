@@ -5,7 +5,7 @@ var collectionName  = 'mockdata';
 var connectionstring = 'mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true'; 
 
 var ca = [fs.readFileSync(__dirname + '/server/clientcertificate.pem')];
-var data = fs.readFileSync(__dirname + '/data/mock_data.json', 'utf8');
+var data = fs.readFileSync(__dirname + '/data/mockdata.json', 'utf8');
 var json = JSON.parse(data);
 
 MongoClient.connect(connectionstring, {

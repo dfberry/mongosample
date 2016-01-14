@@ -12,7 +12,7 @@ var collectionName = "mockdata";
 
 // Set DEFAULT Random Sampling values
 var randomsample = true;
-var sampleSize = 4;
+var sampleSize = 5;
 var aggregationPipelineLocation = 1; // 2nd item in pipeline array
 
 var config = {
@@ -40,23 +40,28 @@ var arrangeAggregationPipeline = function (config, callback){
     
     // default pipeline aggregation for this query
     var aggregationPipeItems = [
-        { $project: // change column names for result set 
+        { $project: 
             {
-                Name: "$first_name" + ' ' + "$lastname",
-                State: "$admincode1",
-                PostalCode: "$postalcode",
+                last: "$last_name",
+                first: "$first_name",
+                
+                
                 lat: "$latitude",
                 lon:  "$longitude",
-                Location: ["$latitude", "$longitude"] 
+                Location: ["$latitude", "$longitude"],
+                _id:0 
             }
         },
-        { $sort: {'State': 1}} // sort by state
+        { $sort: {'last': 1}} // sort by last name
     ];
+    
+
     
     // add randomizer to pipeline
     if (config.randomsample===true){
         var randomizer =  { $sample: { size: config.sample.size } };
         aggregationPipeItems.splice(config.sample.index,0,randomizer);
+            console.log(aggregationPipeItems);
     }
     callback(null, aggregationPipeItems);
 }
@@ -89,7 +94,7 @@ var mongoQuery = function(samplesize, callback){
             if (err){
                 console.log("err=" + err);
             } else {
-              console.log(JSON.stringify(result));  
+              //console.log(JSON.stringify(result));  
             }
             callback(err, result);
         });
