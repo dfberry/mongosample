@@ -6,25 +6,24 @@ MongoDB added the [$sample](https://docs.mongodb.org/manual/reference/operator/a
 ##Random data
 SQL databases have included the ability to generate this same type of random data with two different ideas: random and top. Die-hard database developers have had long debates about the randomness of the data and the accuracy of the query. 
 
-Mongo prototype developers can now use the $sample keyword in the aggregation pipe to produce a the same type of random subset. This is a new feature and only applies to the aggregation pipeline. By adding it to the aggregation pipeline, you can choose where in the munging of the data to grab the subset.
+Mongo prototype developers can now use the $sample keyword in the aggregation pipe to produce a the same type of random subset. 
 
-##Showing $sample
-In order to show how the random sampling works in the mongo query, the website will show the world map and display 5 random latitude/longitude points on the map. Each refresh of the page will produce 5 new random points. 
+##The World Map as a visual example
+In order to show how the random sampling works in the mongo query, the website will show the world map and display random latitude/longitude points on the map. Each refresh of the page will produce new random points. Below the map, the docs will display. 
 
 ![](/public/images/world.png)
 
 Once the website is up and working with data points, we will play with the query to see how the data points change in response. 
 
-##Overview of Steps to complete exercises
-This article assumes you have no mongodb, no website, and no data. It does assume you have an account on ComposeIO. Each step is broken out and explained. If there is a step you already have, skip to the next. 
+##Overview of Steps to complete example
+This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, skip to the next. 
 
-1. get the NodeJS Express website running to display a map of the world
-2. get the mock data from [mockaroo](http://www.mockaroo.com) including latitude and longitude
-3. setup the [ComposeIO](http://www.composeio.com) deployment of MongoDB+ ssl database
+1. get the NodeJS Express website running to display a map of the world with no data
+2. setup the [ComposeIO](http://www.compose.io) deployment of MongoDB+ ssl database and modify /server/config.json with new mongoDB+ url
+3. get the mock data from [Mockaroo](http://www.mockaroo.com) including latitude and longitude
 4. insert the mock data with the insert.js script
 5. update mock data types 
-6. change the website files to connect to MongoDB+ ssl database
-7. verify world map displays points of latitude & longitude
+6. verify world map displays points of latitude & longitude
 
 When the code works and the world map displays with data points, we will play with it to see how $sample impacts the results.
 
@@ -39,15 +38,13 @@ The ***data import script*** is /insert.js. It opens and inserts a json file int
 
 The ***data update script*** is /update.js. It updates the data to numeric and geojson types.
 
-The ***server*** is a nodeJs Express website using the native MongoDB driver. The code uses the filesystem, url, and path libraries. This is a bare-bones express website. The /server/server.js file is the web server, with /server/query.js as the database layer. The server runs at http://127.0.0.1:8080. This address is routed to /public/world.highmap.html. The data query will be made to http://127.0.0.1:8080/map/world/data/?rows=5 from the client file /public.world.highmap.js.  
+The ***server*** is a nodeJs Express website using the native MongoDB driver. The code uses the filesystem, url, and path libraries. This is a bare-bones express website. The /server/server.js file is the web server, with /server/query.js as the database layer. The server runs at http://127.0.0.1:8080. This address is routed to /public/highmap/world.highmap.html. The data query will be made to http://127.0.0.1:8080/map/data/ from the client file /public/highmap/world.highmap.js.  
 
-The ***client*** files are in the /public directory. The main file is the world.highmap.html file. It uses jQuery as the javascript framework, and [highmap](http://www.highcharts.com/maps/demo) as the mapping library which plots the points on the world map. The size of the map is controlled by the world.highmap.css stylesheet for the container class.
+The ***client*** files are in the /public directory. The main file is the /highmap/world.highmap.html file. It uses jQuery as the javascript framework, and [highmap](http://www.highcharts.com/maps/demo) as the mapping library which plots the points on the world map. The size of the map is controlled by the /public/highmap/world.highmap.css stylesheet for the map id.
 
 A /dropcollection.js ***cleanup*** file is provided to remove the collection when you are done. 
 
 ###Step 1: The NodeJS Express Website
-
-
 In order to get the website up and going you need to clone this repository, make sure node is installed, and install the dependency libraries found in package.json. 
 
 ```
@@ -57,66 +54,91 @@ npm install
 Once the dependencies are installed, you can start the web server.
 
 ```
-node server/server.js
+npm start
 ```
 Request the website to see the world map. There won't be any data points on it until later, but the map should display successfully.
 
 [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
-###Step 2: The Prototype Data 
-Use mockeroo to generate your data. This allows you to get data, including latitude and longitude quickly and easily. Make sure to add the latitude and longitude data in json format.
+###Step 2: Setup the [ComposeIO](http://compose.io) MongoDB+ Deployment & Database
 
-![mockaroo.png](/public/images/mockaroo.png)
-
-Make sure you have at least 1000 records for a good show of randomness and save the file as **mockdata.json** in the data subdirectory.
-
-###Step 3: Setup the Deployment & Database
-
-If you already have a MongoDB+ deployment to use, and have the following items, you can move on to the next section:
+If you already have a MongoDB+ deployment with SSL to use, and have the following items, you can move on to the next section:
 * 	database user name
 * 	database user password
-* 	deployment public SSL key in the clientcertificate.pem file
+* 	deployment public SSL key in the /server/clientcertificate.pem file
 * 	connection string for that deployment 
 
 Create a new deployment on ComposeIO for a MongoDB+ database with an SSL connection. 
 
 ![mongoDB+SSL.png](/public/images/mongoDB+SSL.png)
 
-While still on the ComposeIO backoffice, open the new deployment and copy the connection string. You will need to **entire connection string** in order to insert, update, and query the data. The connection string uses a user and password at the beginning. We will create this later.
-
-You also need to get the SSL Public key from the Deployment Overview page. You will need to login with your ComposeIO user password in order for the public key to show. Save the entire **SSL Public key** to a file with the name clientcertificat.pem in the server subfolder. 
+While still on the [ComposeIO](http://compose.io) backoffice, open the new deployment and copy the connection string. 
 
 ![composeio-ssl.png](/public/images/composeio-ssl.png)
+
+You will need to **entire connection string** in order to insert, update, and query the data. The connection string uses a user and password at the beginning and the database name at the end. 
+
+You also need to get the SSL Public key from the Deployment Overview page. You will need to login with your ComposeIO user password in order for the public key to show. 
+
 ![composeiosslpublickey.png](/public/images/composeiosslpublickey.png)
 
-You will also need to create a user in the Deployment's database. Once you create the **user name** and **user password**, edit the connection string to use that information. 
+***Todo***: Save the entire **SSL Public key** to /server/clientcertificate.pem. 
+
+If you save it somewhere else, you need to change the mongodb.certificatefile setting in /server/config.json.
+
+You will also need to create a user in the Deployment's database. 
 
 ![adduser.png](/public/images/adduser.png)
 
+***Todo***: Create new database user and password. Once you create the **user name** and **user password**, edit the connection string for the user, password, and database name.  
+
+*connection string format*
+```
+mongodb://USER:PASSWORD@URL:PORT,URL2:PORT2/DATABASENAME?ssl=true
+```
+
+*connection string example*
+```
+mongodb://myname:myuser@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mydatabase?ssl=true
+```
+
+***Todo***: Change the mongodb.url setting in the /server/config.json file to this new connection string.
+
+###Step 3: The Prototype Data 
+If you already have latitude and longitude data, or want to use the mock file included at /data/mockdata.json, you can skip this step.
+
+Use [Mockeroo](https://www.mockaroo.com) to generate your data. This allows you to get data, including latitude and longitude quickly and easily. Make sure to add the latitude and longitude data in json format.
+
+![mockaroo.png](/public/images/mockaroo.png)
+
+Make sure you have at least 1000 records for a good show of randomness and save the file as **mockdata.json** in the data subdirectory.
+
+***Todo***: Create mock data and save to /data/mockdata/json.
 
 ###Step 4: Insert the Mock Data into the mockdata Collection
-The insert.js file converts the mockdata.json file into the mockdata collection in the database.
-
-Before running the **insert.js** script, the public key and database connection string should change to match what is available to you.  
+The insert.js file converts the /data/mockdata.json file into the mockdata collection in the database.
 
 This script uses the native MongoDB driver and the filesystem node package. 
 
-The **mongos** section of the configuration object is for the SSL mongo connection. You shouldn't need to change any values.
+The configuration is kept in the  /server/config.json file. Make sure it is correct for your mongoDB url, user, password, database name, collection name and mock data file location. The configuration is read in and stored in the privateconfig variable. 
+
+The **mongos** section of the config variable is for the SSL mongo connection. You shouldn't need to change any values.
 
 *insert.js*
 
 ```
 var MongoClient = require('mongodb').MongoClient,  
-  fs = require('fs');
+  fs = require('fs'),
+  path = require('path');
 
-var collectionName  = 'mockdata';
-var connectionstring = 'mongodb://username:userpassword@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true'; 
+var privateconfig = require(path.join(__dirname + '/config.json'));
+ console.log(privateconfig);
 
-var ca = [fs.readFileSync(__dirname + '/server/clientcertificate.pem')];
-var data = fs.readFileSync(__dirname + '/data/mockdata.json', 'utf8');
+var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
+var data = fs.readFileSync(path.join(__dirname + privateconfig.mongodb.data), 'utf8');
 var json = JSON.parse(data);
 
-MongoClient.connect(connectionstring, {
+MongoClient.connect(privateconfig.mongodb.url, {
     mongos: {
         ssl: true,
         sslValidate: true,
@@ -130,18 +152,14 @@ MongoClient.connect(connectionstring, {
         console.log(err);
     } else {
         console.log("connected");
-        db.collection(collectionName).insert(json, function (err, collection) {
+        db.collection(privateconfig.mongodb.collection).insert(json, function (err, collection) {
             if (err) console.log((err));
             db.close();
             console.log('finished');
         }); 
     }  
 });
-
 ```
-
-
-The **mockdata** collection is created with this script. The public SSL key is loaded from the clientcertificate.pem file into an array and named **ca**. 
 
 Run the insert script.
 

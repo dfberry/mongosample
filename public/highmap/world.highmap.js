@@ -17,7 +17,7 @@ function loadWorld(){
 
         var worldMap = Highcharts.maps['custom/world-continents'];
 
-        $('#container').highcharts('Map', {
+        $('#map').highcharts('Map', {
             title: {
                 text: 'World'
             },

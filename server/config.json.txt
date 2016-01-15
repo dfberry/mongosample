@@ -1,13 +1,23 @@
 {
     "mongodb": {
+    
+        // mockdata for insert
         "data": "/../data/mockdata.json",
+        
+        // mongoDB ssl url including username, password, and database  
         "url": "mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true",
+        
+        // mongoDB collection name
         "collection": "mockdata",
+        
+        // mongoDB+ ssl client side certificate
         "certificatefile": "/clientcertificate.pem",
+        
+        // aggregation pipeline $sample configuration
         "sample": {
             "on": true,
             "size": 5,
-            "index": 1
+            "index": 1 // position in pipeline index
         }
     }
 }

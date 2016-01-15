@@ -1,17 +1,14 @@
 // native library
-var MongoClient = require('mongodb').MongoClient;
-var fs = require('fs');
-var path = require('path');
-var privateconfig = require(path.join(__dirname + '/config.json'));
- console.log(privateconfig);
-
+var MongoClient = require('mongodb').MongoClient,
+    fs = require('fs'),
+    path = require('path'),
+    privateconfig = require(path.join(__dirname + '/config.json'));
 
 // client certificate
-// generated from database overview page under "SSL Public key"
+// generated from ComposeIO database overview page under "SSL Public key"
 var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
-console.log(path.join(__dirname + privateconfig.mongodb.certificatefile));
 
-
+// database config including mongoDB ssl connection
 var config = {
     url: privateconfig.mongodb.url,
     collection: privateconfig.mongodb.collection,
@@ -26,14 +23,19 @@ var config = {
         }
     }
  };
- console.log(config);
- config.sample = privateconfig.mongodb.sample;
- console.log(config);
+
+// add $sample config info
+config.sample = privateconfig.mongodb.sample;
  
-// add sampling to aggregation pipeline array
+// Purpose: add sampling to aggregation pipeline array
+// Params: 
+//      config.sample.on: sampling on
+//      config.sample.size: count of docs to return
+//      config.sample.index: where in pipeline to add $sample
+// Returns: complete aggregation pipeline
 var arrangeAggregationPipeline = function (config, callback){
     
-    // default pipeline aggregation for this query
+    // default pipeline aggregation 
     var aggregationPipeItems = [
         { $project: 
             {
@@ -47,20 +49,24 @@ var arrangeAggregationPipeline = function (config, callback){
         },
         { $sort: {'last': 1}} // sort by last name
     ];
-    
 
-    
     // add randomizer to pipeline
-    
     if ((config.sample.on===true) && (config.sample.index) && (config.sample.size)){
         var randomizer =  { $sample: { size: config.sample.size } };
         aggregationPipeItems.splice(config.sample.index,0,randomizer);
-            console.log(aggregationPipeItems);
     }
+    
+    console.log(aggregationPipeItems);
+    
+    // return fully defined pipeline
     callback(null, aggregationPipeItems);
 }
 
-// run query, return results
+// Purpose: run query, return docs
+// Params: 
+//      db: mongoDB database object
+//      config: entire config json
+// Returns: mongoDB docs as json
 var aggregate = function (db, config, callback) {
     arrangeAggregationPipeline(config, function (err, aggPipeline){
         db.collection(config.collection).aggregate(aggPipeline).toArray(function (err, result) {
@@ -69,10 +75,14 @@ var aggregate = function (db, config, callback) {
     });
 };
 
-// ENTRY POINT INTO LIBRARY
-// samplesize comes in as string from web server
+// Purpose: ENTRY POINT INTO LIBRARY
+// Params:
+//      samplesize: 0=all docs
+//      aggregationPipelinePosition: $sample index in aggregationPipeline array
+// Returns: mongoDB docs as json
 var mongoQuery = function(samplesize, aggregationPipelinePosition, callback){
  
+    // configure sampling
     if ((samplesize) && (samplesize>0)){
         config.sample.on=true;
         config.sample.size = samplesize;
@@ -81,17 +91,14 @@ var mongoQuery = function(samplesize, aggregationPipelinePosition, callback){
         config.sample.on=false;
     }
 
+    // configure pipeline position
     if ((aggregationPipelinePosition) 
         && (!isNaN( aggregationPipelinePosition )) 
         && ((aggregationPipelinePosition >= 0 && aggregationPipelinePosition <= 2))){
-        console.log("setting aggregationPipelinePosition=" + aggregationPipelinePosition);
-            
         config.sample.index = aggregationPipelinePosition;
     } 
-    
-    console.log(JSON.stringify(config.sample)); 
  
-    // connect to database, return query results
+    // connect to database, return mongoDB docs
     MongoClient.connect(config.url,config.options, function (err, db) {
         aggregate(db, config, function (err, result) {
             db.close();

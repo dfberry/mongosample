@@ -4,35 +4,29 @@ var url = require('url'),
     express = require('express'),
     app = express();
 
-
 var database = require(path.join(__dirname + '/query.js'));
-console.log(path.join(__dirname + '/query.js'));
-
-//Lets define a port we want to listen to
 const PORT=8080; 
 
+// public files (img, css, js, html)
 app.use('/public', express.static(__dirname + '/../public'));
 
+// default route
 app.get(['/', '/map/'], function (req, res) {
   res.sendFile(path.join(__dirname + '/../public/highmap/world.highmap.html'));
 });
 
+// api-data route
 app.get('/map/data', function (req, res) {
     
-    var queryData = url.parse(req.url, true).query;
-    var rowsRequested = 0;
+    var rowsRequested = 0; // all rows
     var aggregationPipelinePosition = 1; //2nd position
      
-    if (queryData.rows){
-        rowsRequested = parseInt(queryData.rows);
-        console.log("server rowsRequested=" + rowsRequested);
-    }
-    
-    if (queryData.pos){
-        aggregationPipelinePosition = parseInt(queryData.pos);
-        console.log("server pipelineposition=" + queryData.pos);
-    } 
+    // get query params
+    var queryData = url.parse(req.url, true).query;
+    if (queryData.rows) rowsRequested = parseInt(queryData.rows);
+    if (queryData.pos) aggregationPipelinePosition = parseInt(queryData.pos);
 
+    // request data
     database.query(rowsRequested, aggregationPipelinePosition, function (err, results){
         if (results){
             res.json(results);
@@ -42,10 +36,9 @@ app.get('/map/data', function (req, res) {
             res.write("done - no error, no results");
         }
     });
-    
 });
 
-//Lets start our server
+//start server
 app.listen(PORT, function(){
     console.log("Server listening on: http://localhost:%s", PORT);
 });
