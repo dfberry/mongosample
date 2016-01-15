@@ -354,15 +354,19 @@ The next step in the pipeline is the sorting of the data by last name. If the pi
  
 ![](allrows.png)
 
-Since we are just playing with the data, we can ignore the map and call the data query url directly: [http://127.0.0.1:8080/map/world/data/?rows=5](http://127.0.0.1:8080/map/world/data/?rows=5).
+ [http://127.0.0.1:8080/?rows=5&pos=2](http://127.0.0.1:8080/?rows=5&pos=2).
 
 ![](/public/images/nowithnosample.png) 
 
-The location of $sample is controlled by the aggregationPipelineLocation variable in the /server/query.js. It is set to 1 so with a zero-based array, it will be applied between $project and $sort. If the code runs as supplied, the set of data is randomized, 5 documents are selected, then the 5 rows are sorted. This would be meaningful in both that the data is random, but returned sorted. 
+The location of $sample is controlled by the pos value in the url. If it is set to 1 so with a zero-based array, it will be applied between $project and $sort. If the code runs as supplied, the set of data is randomized, 5 documents are selected, then the 5 rows are sorted. This would be meaningful in both that the data is random, and returned sorted. 
 
-If the $sample is moved to the first position, still before sort, that same result. But, however, if the $sample is the last item, the entire set is sorted, then 5 rows selected. The requests are no longer sorted.
+If the $sample is moved to the first position, still before the sort is applied, that same result. But, however, if the $sample is the last item (pos=2), the entire set is sorted, then 5 rows selected. The requests are no longer sorted.
 
-Open /server/query.js and change the value of aggregationPipelineLocation to 2.   
+Change the url to [http://127.0.0.1:8080/?rows=5&pos=2](http://127.0.0.1:8080/?rows=5&pos=2) where the $sample is after the sort. 
+
+![](image.)
+
+Note that while 5 documents are returned, they are not in sorted order. If they are in sorted order, it isn't because they were sorted but because the random pick happend that way on accident, not on purpose. 
 
 ![](Snip20160114_8.png)
 

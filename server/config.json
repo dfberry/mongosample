@@ -1,0 +1,14 @@
+{
+    "mongodb": {
+        "data": "/../data/mockdata.json",
+        "url": "mongodb://username:userpassword@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/databasename?ssl=true",
+        "collection": "mockdata",
+        "datafile": "mockdata.json",
+        "certificatefile": "/clientcertificate.pem",
+        "sample": {
+            "on": true,
+            "size": 5,
+            "index": 1
+        }
+    }
+}

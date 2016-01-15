@@ -1,12 +1,13 @@
 var MongoClient = require('mongodb').MongoClient,  
-  fs = require('fs');
+  fs = require('fs'),
+  path = require('path');
 
-var collectionName  = 'mockdata';
-var connectionstring = 'mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true'; 
+var privateconfig = require(path.join(__dirname + '/config.json'));
+ console.log(privateconfig);
 
-var ca = [fs.readFileSync(__dirname + '/server/clientcertificate.pem')];
+var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
 
-MongoClient.connect(connectionstring, {
+MongoClient.connect(privateconfig.mongodb.url, {
     mongos: {
         ssl: true,
         sslValidate: true,
@@ -19,7 +20,7 @@ MongoClient.connect(connectionstring, {
     if (err) console.log(err);
     if (db) console.log("connected");
         
-    db.collection(collectionName).find().each(function(err, doc) {       
+    db.collection(privateconfig.mongodb.collection).find().each(function(err, doc) {       
         if (doc){
             
             console.log(doc.latitude + "," + doc.longitude);
@@ -30,7 +31,7 @@ MongoClient.connect(connectionstring, {
             doc.latitude = numericLat;
             doc.longitude = numericLon;
             doc.geojson= { location: { type: 'Point', coordinates : [numericLat, numericLon]}}; // convert field to string
-            db.collection(collectionName).save(doc);
+            db.collection(privateconfig.mongodb.collection).save(doc);
             
         } else {
             db.close();

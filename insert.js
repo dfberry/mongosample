@@ -1,14 +1,15 @@
 var MongoClient = require('mongodb').MongoClient,  
-  fs = require('fs');
+  fs = require('fs'),
+  path = require('path');
 
-var collectionName  = 'mockdata';
-var connectionstring = 'mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true'; 
+var privateconfig = require(path.join(__dirname + '/config.json'));
+ console.log(privateconfig);
 
-var ca = [fs.readFileSync(__dirname + '/server/clientcertificate.pem')];
-var data = fs.readFileSync(__dirname + '/data/mockdata.json', 'utf8');
+var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
+var data = fs.readFileSync(path.join(__dirname + privateconfig.mongodb.datafile), 'utf8');
 var json = JSON.parse(data);
 
-MongoClient.connect(connectionstring, {
+MongoClient.connect(privateconfig.mongodb.url, {
     mongos: {
         ssl: true,
         sslValidate: true,
@@ -22,7 +23,7 @@ MongoClient.connect(connectionstring, {
         console.log(err);
     } else {
         console.log("connected");
-        db.collection(collectionName).insert(json, function (err, collection) {
+        db.collection(privateconfig.mongodb.collection).insert(json, function (err, collection) {
             if (err) console.log((err));
             db.close();
             console.log('finished');

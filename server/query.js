@@ -1,23 +1,20 @@
 // native library
 var MongoClient = require('mongodb').MongoClient;
 var fs = require('fs');
+var path = require('path');
+var privateconfig = require(path.join(__dirname + '/config.json'));
+ console.log(privateconfig);
+
 
 // client certificate
 // generated from database overview page under "SSL Public key"
-var ca = [fs.readFileSync(__dirname + "/clientcertificate.pem")];
+var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
+console.log(path.join(__dirname + privateconfig.mongodb.certificatefile));
 
-var mongourl = "mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true";
-
-var collectionName = "mockdata";
-
-// Set DEFAULT Random Sampling values
-var randomsample = true;
-var sampleSize = 5;
-var aggregationPipelineLocation = 2; // 2nd item in pipeline array
 
 var config = {
-    url: mongourl,
-    collection: collectionName,
+    url: privateconfig.mongodb.url,
+    collection: privateconfig.mongodb.collection,
     options: {
         mongos : {
             ssl: true,
@@ -27,13 +24,11 @@ var config = {
             poolSize: 1,
             reconnectTries: 1
         }
-    }  ,
-    randomsample: randomsample,
-    sample: {
-            size: sampleSize,
-            index: aggregationPipelineLocation 
     }
  };
+ console.log(config);
+ config.sample = privateconfig.mongodb.sample;
+ console.log(config);
  
 // add sampling to aggregation pipeline array
 var arrangeAggregationPipeline = function (config, callback){
@@ -57,7 +52,7 @@ var arrangeAggregationPipeline = function (config, callback){
     
     // add randomizer to pipeline
     
-    if ((config.randomsample===true) && (config.sample.index) && (config.sample.size)){
+    if ((config.sample.on===true) && (config.sample.index) && (config.sample.size)){
         var randomizer =  { $sample: { size: config.sample.size } };
         aggregationPipeItems.splice(config.sample.index,0,randomizer);
             console.log(aggregationPipeItems);
@@ -79,11 +74,11 @@ var aggregate = function (db, config, callback) {
 var mongoQuery = function(samplesize, aggregationPipelinePosition, callback){
  
     if ((samplesize) && (samplesize>0)){
-        config.randomsample=true;
+        config.sample.on=true;
         config.sample.size = samplesize;
         config.sample.index= 1;
     } else {
-        config.randomsample=false;
+        config.sample.on=false;
     }
 
     if ((aggregationPipelinePosition) 
