@@ -1,8 +1,8 @@
 {
-  "name": "composeio",
+  "name": "Prototyping in MongoDB with the $sample keyword",
   "version": "1.0.0",
-  "description": "Script for compose.io",
-  "main": "hello.js",
+  "description": "Website and scripts showing the mongoDB 3.2 keyword usage of $sample in the aggregation pipeline on a ssl connection.",
+  "main": "/server/server.js",
   "dependencies": {
     "JSONStream": "^1.0.7",
     "express": "^4.13.3",
