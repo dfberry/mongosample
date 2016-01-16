@@ -125,15 +125,12 @@ The configuration is kept in the  /server/config.json file. Make sure it is corr
 The **mongos** section of the config variable is for the SSL mongo connection. You shouldn't need to change any values.
 
 *insert.js*
-
 ```
 var MongoClient = require('mongodb').MongoClient,  
   fs = require('fs'),
   path = require('path');
 
 var privateconfig = require(path.join(__dirname + '/config.json'));
- console.log(privateconfig);
-
 var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
 var data = fs.readFileSync(path.join(__dirname + privateconfig.mongodb.data), 'utf8');
 var json = JSON.parse(data);
@@ -172,20 +169,18 @@ If you create an SSL database but don't pass the certificate, you won't be able 
 Once you run the script, make sure you can see the documents in the database's **mockdata** collection.
 
 ###Step 5: Convert latitude & longitude from string to floats
-The mock data's latitude and longitude are strings. Use the **update.js** file to convert the strings to floats as well as create the geojson values. In order to use this file, you will need to change the connectionstring value. If you put the clientcertificate.pem in the server subfolder in the previous step, you shouldn't have to change any other values. 
+The mock data's latitude and longitude are strings. Use the **update.js** file to convert the strings to floats as well as create the geojson values. 
 
 *update.js*
-
 ```
 var MongoClient = require('mongodb').MongoClient,  
-  fs = require('fs');
+  fs = require('fs'),
+  path = require('path');
 
-var collectionName  = 'mockdata';
-var connectionstring = 'mongodb://username:userpassword@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true'; 
+var privateconfig = require(path.join(__dirname + '/config.json'));
+var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
 
-var ca = [fs.readFileSync(__dirname + '/server/clientcertificate.pem')];
-
-MongoClient.connect(connectionstring, {
+MongoClient.connect(privateconfig.mongodb.url, {
     mongos: {
         ssl: true,
         sslValidate: true,
@@ -197,8 +192,8 @@ MongoClient.connect(connectionstring, {
 }, function (err, db) {
     if (err) console.log(err);
     if (db) console.log("connected");
-        
-    db.collection(collectionName).find().each(function(err, doc) {       
+       
+    db.collection(privateconfig.mongodb.collection).find().each(function(err, doc) {       
         if (doc){
             
             console.log(doc.latitude + "," + doc.longitude);
@@ -209,15 +204,13 @@ MongoClient.connect(connectionstring, {
             doc.latitude = numericLat;
             doc.longitude = numericLon;
             doc.geojson= { location: { type: 'Point', coordinates : [numericLat, numericLon]}}; // convert field to string
-            db.collection(collectionName).save(doc);
+            db.collection(privateconfig.mongodb.collection).save(doc);
             
         } else {
             db.close();
         }
-
     });
     console.log('finished');
-
 });
 ```
 
@@ -226,119 +219,7 @@ Run the insert script.
 ```
 node update.js
 ```
-###Step 6: Change the Website file to connect to MongoDB+
-
-The website's **query.js** file needs to be changed for the connectionstring, collection name, and client certificate file. These are all listed at the top of the /server/query.js file.
-
-Once these items are changed, the website should return random data points on the map. 
-
-We will go over the file in more detail later. 
-
-*query.js*
-
-```
-var MongoClient = require('mongodb').MongoClient;
-var fs = require('fs');
-
-// client certificate
-// generated from database overview page under "SSL Public key"
-var ca = [fs.readFileSync(__dirname + "/clientcertificate.pem")];
-
-var mongourl = "mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true";
-
-var collectionName = "mockdata";
-
-// Set DEFAULT Random Sampling values
-var randomsample = true;
-var sampleSize = 4;
-var aggregationPipelineLocation = 1; // 2nd item in pipeline array
-
-var config = {
-    url: mongourl,
-    collection: collectionName,
-    options: {
-        mongos : {
-            ssl: true,
-            sslValidate: true,
-            ca: ca,
-            sslCA: ca,
-            poolSize: 1,
-            reconnectTries: 1
-        }
-    }  ,
-    randomsample: randomsample,
-    sample: {
-            size: sampleSize,
-            index: aggregationPipelineLocation 
-    }
- };
- 
-// add sampling to aggregation pipeline array
-var arrangeAggregationPipeline = function (config, callback){
-    
-    // default pipeline aggregation for this query
-    var aggregationPipeItems = [
-        { $project: // change column names for result set 
-            {
-                Name: "$first_name" + ' ' + "$lastname",
-                State: "$admincode1",
-                PostalCode: "$postalcode",
-                lat: "$latitude",
-                lon:  "$longitude",
-                Location: ["$latitude", "$longitude"] 
-            }
-        },
-        { $sort: {'State': 1}} // sort by state
-    ];
-    
-    // add randomizer to pipeline
-    if (config.randomsample===true){
-        var randomizer =  { $sample: { size: config.sample.size } };
-        aggregationPipeItems.splice(config.sample.index,0,randomizer);
-    }
-    callback(null, aggregationPipeItems);
-}
-
-// run query, return results
-var aggregate = function (db, config, callback) {
-    arrangeAggregationPipeline(config, function (err, aggPipeline){
-        db.collection(config.collection).aggregate(aggPipeline).toArray(function (err, result) {
-            callback(null, result);
-        });
-    });
-};
-
-// ENTRY POINT INTO LIBRARY
-// samplesize comes in as string from web server
-var mongoQuery = function(samplesize, callback){
- 
-    if ((samplesize) && (samplesize>0)){
-        config.randomsample=true;
-        config.sample.size = samplesize;
-        config.index= 1;
-    } else {
-        config.randomsample=false;
-    }
- 
-    // connect to database, return query results
-    MongoClient.connect(config.url,config.options, function (err, db) {
-        aggregate(db, config, function (err, result) {
-            db.close();
-            if (err){
-                console.log("err=" + err);
-            } else {
-              console.log(JSON.stringify(result));  
-            }
-            callback(err, result);
-        });
-    });
-}
-module.exports = {
-    query: mongoQuery
-}
-```
-
-###Step 7: Verify the world map displays random sampling points
+###Step 6: Verify world map displays points of latitude & longitude
 Refresh the web site several times. This should show different points each time. The variation of randomness should catch your eye. Is it widely random, or not as widely random as you would like?
 
 The fine print of the $sample says the data may duplicate within a single query. On this map that would appear as less than the number of requested data points. Did you see that in your tests? 
@@ -346,11 +227,15 @@ The fine print of the $sample says the data may duplicate within a single query.
 ##How $sample impacts the results
 Now that the website works, let's play with it to see how $sample impacts the results.
 
-###Understand the $sample code in /server/query.js
+1. understand the $sample code in /server/query.js
+2. change the row count
+3. change the aggregation pipeline order
+4. prototype with $sample
+
+###Step 1: Understand the $sample code in /server/query.js
 The [$sample](https://docs.mongodb.org/manual/reference/operator/aggregation/sample/#pipe._S_sample) keyword controls random sampling of the query in the [aggregation pipeline](https://docs.mongodb.org/manual/core/aggregation-pipeline/). 
 
-The pipeline used in this article is a series of array elements in the **arrangeAggregationPipeline** function in the /server/query.js file. The first array element is the $project section which controls what columns to return, and how they are named. 
-
+The pipeline used in this article is a series of array elements in the **arrangeAggregationPipeline** function in the /server/query.js file. The first array element is the $project section which controls what data to return. 
 
 *arrangeAggregationPipeline()*
 ```
@@ -368,81 +253,63 @@ The pipeline used in this article is a series of array elements in the **arrange
         { $sort: {'last': 1}} // sort by last name
     ];
 ```
-The next step in the pipeline is the sorting of the data by last name. If the pipeline runs this way (without $sample), all documents are returned. Alternately, if the url value for rows is zero (0), or doesn't exist, all rows will be returned.  
+The next step in the pipeline is the sorting of the data by last name. If the pipeline runs this way (without $sample), all documents are returned.
  
-![](allrows.png)
+![](/public/images/allrows.png)
 
  [http://127.0.0.1:8080/?rows=5&pos=2](http://127.0.0.1:8080/?rows=5&pos=2).
 
 ![](/public/images/nowithnosample.png) 
 
-The location of $sample is controlled by the pos value in the url. If it is set to 1 so with a zero-based array, it will be applied between $project and $sort. If the code runs as supplied, the set of data is randomized, 5 documents are selected, then the 5 rows are sorted. This would be meaningful in both that the data is random, and returned sorted. 
+The location of $sample is controlled by the pos value in the url. If it is set to 1 with a zero-based array, it will be applied between $project and $sort, at the second position. If the code runs as supplied, the set of data is randomized, documents are selected, then the rows are sorted. This would be meaningful in both that the data is random, and returned sorted. 
 
-If the $sample is moved to the first position, still before the sort is applied, that same result. But, however, if the $sample is the last item (pos=2), the entire set is sorted, then 5 rows selected. The requests are no longer sorted.
+If the $sample is moved to the 0 position, still before the sort is applied, that same result. But, however, if the $sample is the last item (pos=2), the entire set is sorted, then 5 rows are selected. The results are no longer sorted.
 
-Change the url to [http://127.0.0.1:8080/?rows=5&pos=2](http://127.0.0.1:8080/?rows=5&pos=2) where the $sample is after the sort. 
+Change the url to [http://127.0.0.1:8080/?rows=5&pos=2](http://127.0.0.1:8080/?rows=5&pos=2) so that the $sample is after the sort. 
 
 ![](image.)
 
-Note that while 5 documents are returned, they are not in sorted order. If they are in sorted order, it isn't because they were sorted but because the random pick happend that way on accident, not on purpose. 
+Note that while 5 documents are returned, they are not in sorted order. If they are in sorted order, it isn't because they were sorted, but because the random pick happened that way on accident, not on purpose. 
 
 ![](Snip20160114_8.png)
 
+###Step 2: Change the row count
+The count of rows is a parameter in the url to the server, when the data is requested. Change the url to indicate 10 rows returned.
 
+*request 10 rows, with sorting applied after]*
 
-
-
-Now apply the  
-
-
-
-The **config** parameter at the top of the file controls if sampling is applied, how many documents are returned, and where in the pipeline
-
-
-
-####$sample and the aggregation pipeline
-
-
-###Change the row count
-The count of rows is a parameter in the url to the server, when the data is request. In order to change the row count, the client-side public jQuery file that makes the request needs to be changed. 
-
-The ***/public/world.highmap.js*** file is called when the /public/world.highmap.html page is loaded. The world.highmap.js file calls the server for data points, then hands these data points to the highmap library to plot on the world map. 
-
-The /public/world.highmap.js code requests 5 rows of data from the server. This value is passed back to /server/server.js, which is passed to /server/query.js. In order to request more rows, change the ***randomRowCount*** variable at the top of the loadWorld() function in /public/world.highmap.html. Change that value to 10, and refresh the browser page. 
+[http://127.0.0.1:8080/?rows=10&pos=1](http://127.0.0.1:8080/?rows=10&pos=1)
 
 *Note: if the value is 0, all rows are returned.* 
 
-*world.highmap.js*
-```
-$(function () {
-   loadWorld();    
-});
-
-function loadWorld(){
-    
-    var randomRowCount = 10;
- 
-    $.get( "http://127.0.0.1:8080/map/world/data/?rows=" + randomRowCount, function( latLongPoints ) {
-
-        var worldMap = Highcharts.maps['custom/world-continents'];
-
-        $('#container').highcharts('Map', {
-            title: {
-                text: 'World'
-            },
-            series: [{
-                mapData: worldMap,
-                showInLegend: false      
-
-            },{
-                type: 'mappoint',
-                data: latLongPoints,
-                showInLegend: false            
-            }]
-        });
-    }); 
-}
-```
 ![](/public/images/worldmap10datapoints.png)
 
-###Change the aggregation pipeline order
+Request the page several times to get an idea of how random the data is. 
+
+###Step 3: Change the aggregation pipeline order
+The aggregation pipeline order is a parameter in the url to the server as well. Change the url to indicate the last position, after sorting.
+
+*request 10 rows, with sorting applied before*
+
+http://127.0.0.1:8080/?rows=10&pos=2](http://127.0.0.1:8080/?rows=10&pos=2)
+
+*Note: Only 0, 1, and 2 are valid values* 
+
+![](/public/images/worldmap10datapoints.png)
+
+The results below the map should not be sorted. Refresh the page several times to see how the results are still random and limited to a ***rows*** counts. 
+
+##Prototype with $sample
+The mongoDB $sample is a great way to to try out a visual design without needing all or even real data. At the early stage of the design, a quick visual can give you an idea if you are going down the right path.
+
+The map as data points works well for 5 or 10 points but what about 50 or 100?
+
+*request 100 rows, with sorting applied before*
+
+http://127.0.0.1:8080/?rows=100&pos=1](http://127.0.0.1:8080/?rows=100&pos=1)
+
+![](/public/images/worldmap10datapoints.png)
+
+The visual appeal and much of the meaning of the data is lost in the mess of the map. The design worked for a few but not mean, and certainly not all. 
+
+At this point, you might change the style of the point based on quantity.  

@@ -4,13 +4,22 @@ $(function () {
 
 function loadWorld(){
     
+    // count of rows to sample
     var rows = $.url().param('rows');
     if (isNaN(rows)){
         rows=0;
     }     
-    var aggregationPipePosition = $.url().param('pos');  ;
+    
+    // position in aggregation pipeline
+    var aggregationPipePosition = $.url().param('pos');  
     if (isNaN(aggregationPipePosition)){
         aggregationPipePosition=1;
+    }
+    
+    // how big are point markers on map
+    var radius = $.url().param('radius');  
+    if (isNaN(radius)){
+        radius=3;
     }
 
     $.get( "http://127.0.0.1:8080/map/data/?rows=" + rows + "&pos=" + aggregationPipePosition, function( latLongPoints ) {
@@ -28,10 +37,13 @@ function loadWorld(){
             },{
                 type: 'mappoint',
                 data: latLongPoints,
-                showInLegend: false            
+                color: "#000000",
+                showInLegend: false,
+                "marker": {
+                    "radius": radius
+                }            
             }]
         });
-        
         $('#data').text(JSON.stringify(latLongPoints));
     }); 
 }

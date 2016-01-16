@@ -3,8 +3,7 @@ var MongoClient = require('mongodb').MongoClient,
   path = require('path');
 
 var privateconfig = require(path.join(__dirname + '/config.json'));
- console.log(privateconfig);
-
+console.log(privateconfig);
 var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
 
 MongoClient.connect(privateconfig.mongodb.url, {
@@ -19,7 +18,7 @@ MongoClient.connect(privateconfig.mongodb.url, {
 }, function (err, db) {
     if (err) console.log(err);
     if (db) console.log("connected");
-        
+       
     db.collection(privateconfig.mongodb.collection).find().each(function(err, doc) {       
         if (doc){
             
@@ -36,9 +35,6 @@ MongoClient.connect(privateconfig.mongodb.url, {
         } else {
             db.close();
         }
-
     });
     console.log('finished');
-
 });
-
