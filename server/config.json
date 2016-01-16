@@ -1,7 +1,7 @@
 {
     "mongodb": {
         "data": "/../data/mockdata.json",
-        "url": "mongodb://dbtest:dbtest@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/mytestdb?ssl=true",
+        "url": "mongodb://dbuser:dbpwd@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/database?ssl=true",
         "collection": "mockdata",
         "certificatefile": "/clientcertificate.pem",
         "sample": {
