@@ -16,20 +16,26 @@ In order to show how the random sampling works in the mongo query, the website w
 Once the website is up and working with data points, we will play with the query to see how the data points change in response. 
 
 ##Overview of Steps to complete example
+
+###[Setup](#setup)
+
 This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, skip to the next. 
 
-1. get the NodeJS Express website running to display a map of the world with no data
-2. setup the [ComposeIO](http://www.compose.io) deployment of MongoDB+ ssl database and modify /server/config.json with new mongoDB+ url
-3. get the mock data from [Mockaroo](http://www.mockaroo.com) including latitude and longitude
-4. insert the mock data with the insert.js script
-5. update mock data types 
-6. verify world map displays points of latitude & longitude
+1. [get the NodeJS Express website running to display a map of the world with no data](#setup1)
+2. [setup the [ComposeIO](http://www.compose.io) deployment of MongoDB+ ssl database and modify /server/config.json with new mongoDB+ url](#setup2)
+3. [get the mock data from [Mockaroo](http://www.mockaroo.com) including latitude and longitude](#setup3)
+4. [insert the mock data with the insert.js script](#setup4)
+5. [update mock data types](#setup5) 
+6. [verify world map displays points of latitude & longitude](#setup6)
+
+###[Play](#show1)
 
 When the code works and the world map displays with data points, we will play with it to see how $sample impacts the results.
 
-1. understand the $sample code in /server/query.js
-2. change the row count
-3. change the aggregation pipeline order
+1. [understand the $sample code in /server/query.js](#show1)
+2. [change the row count](#show2)
+3. [change the aggregation pipeline order](#show3)
+4. [protoype with $sample](#show4)
  
 If you want to skip to an online working example, this code is hosted [here](http://s.dfberry.io). 
 
@@ -44,6 +50,8 @@ The ***client*** files are in the /public directory. The main file is the /highm
 
 A /dropcollection.js ***cleanup*** file is provided to remove the collection when you are done. 
 
+<a name='setup'></a>
+<a name='setup1'></a>
 ###Step 1: The NodeJS Express Website
 In order to get the website up and going you need to clone this repository, make sure node is installed, and install the dependency libraries found in package.json. 
 
@@ -60,6 +68,7 @@ Request the website to see the world map. There won't be any data points on it u
 
 [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
+<a =name='setup2'></a>
 ###Step 2: Setup the [ComposeIO](http://compose.io) MongoDB+ Deployment & Database
 
 If you already have a MongoDB+ deployment with SSL to use, and have the following items, you can move on to the next section:
@@ -104,6 +113,7 @@ mongodb://myname:myuser@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-p
 
 ***Todo***: Change the mongodb.url setting in the /server/config.json file to this new connection string.
 
+<a =name='setup3'></a>
 ###Step 3: The Prototype Data 
 If you already have latitude and longitude data, or want to use the mock file included at /data/mockdata.json, you can skip this step.
 
@@ -115,6 +125,7 @@ Make sure you have at least 1000 records for a good show of randomness and save 
 
 ***Todo***: Create mock data and save to /data/mockdata/json.
 
+<a =name='setup4'></a>
 ###Step 4: Insert the Mock Data into the mockdata Collection
 The insert.js file converts the /data/mockdata.json file into the mockdata collection in the database.
 
@@ -168,6 +179,7 @@ If you create an SSL database but don't pass the certificate, you won't be able 
 
 Once you run the script, make sure you can see the documents in the database's **mockdata** collection.
 
+<a =name='setup5'></a>
 ###Step 5: Convert latitude & longitude from string to floats
 The mock data's latitude and longitude are strings. Use the **update.js** file to convert the strings to floats as well as create the geojson values. 
 
@@ -219,6 +231,8 @@ Run the insert script.
 ```
 node update.js
 ```
+
+<a =name='setup6'></a>
 ###Step 6: Verify world map displays points of latitude & longitude
 Refresh the web site several times. This should show different points each time. The variation of randomness should catch your eye. Is it widely random, or not as widely random as you would like?
 
@@ -227,11 +241,12 @@ The fine print of the $sample says the data may duplicate within a single query.
 ##How $sample impacts the results
 Now that the website works, let's play with it to see how $sample impacts the results.
 
-1. understand the $sample code in /server/query.js
-2. change the row count
-3. change the aggregation pipeline order
-4. prototype with $sample
+1. [understand the $sample code in /server/query.js](#show1)
+2. [change the row count](#show2)
+3. [change the aggregation pipeline order](#show3)
+4. [prototype with $sample](#show4)
 
+<a name='show1'></a>
 ###Step 1: Understand the $sample code in /server/query.js
 The [$sample](https://docs.mongodb.org/manual/reference/operator/aggregation/sample/#pipe._S_sample) keyword controls random sampling of the query in the [aggregation pipeline](https://docs.mongodb.org/manual/core/aggregation-pipeline/). 
 
@@ -273,6 +288,7 @@ Note that while 5 documents are returned, they are not in sorted order. If they 
 
 ![](Snip20160114_8.png)
 
+<a name='show2'></a>
 ###Step 2: Change the row count
 The count of rows is a parameter in the url to the server, when the data is requested. Change the url to indicate 10 rows returned.
 
@@ -286,6 +302,7 @@ The count of rows is a parameter in the url to the server, when the data is requ
 
 Request the page several times to get an idea of how random the data is. 
 
+<a name='show3'></a>
 ###Step 3: Change the aggregation pipeline order
 The aggregation pipeline order is a parameter in the url to the server as well. Change the url to indicate the last position, after sorting.
 
@@ -299,6 +316,7 @@ http://127.0.0.1:8080/?rows=10&pos=2](http://127.0.0.1:8080/?rows=10&pos=2)
 
 The results below the map should not be sorted. Refresh the page several times to see how the results are still random and limited to a ***rows*** counts. 
 
+<a name='show4'></a>
 ##Prototype with $sample
 The mongoDB $sample is a great way to to try out a visual design without needing all or even real data. At the early stage of the design, a quick visual can give you an idea if you are going down the right path.
 
