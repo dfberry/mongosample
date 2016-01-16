@@ -22,8 +22,8 @@ Once the website is up and working with data points, we will play with the query
 This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, skip to the next. 
 
 1. [get the NodeJS Express website running to display a map of the world with no data](#setup1)
-2. [setup the [ComposeIO](http://www.compose.io) deployment of MongoDB+ ssl database and modify /server/config.json with new mongoDB+ url](#setup2)
-3. [get the mock data from [Mockaroo](http://www.mockaroo.com) including latitude and longitude](#setup3)
+2. [setup the deployment of MongoDB+ ssl database and modify /server/config.json with new mongoDB+ url](#setup2)
+3. [get the mock data from including latitude and longitude](#setup3)
 4. [insert the mock data with the insert.js script](#setup4)
 5. [update mock data types](#setup5) 
 6. [verify world map displays points of latitude & longitude](#setup6)
@@ -87,7 +87,7 @@ While still on the [ComposeIO](http://compose.io) backoffice, open the new deplo
 
 You will need to **entire connection string** in order to insert, update, and query the data. The connection string uses a user and password at the beginning and the database name at the end. 
 
-You also need to get the SSL Public key from the Deployment Overview page. You will need to login with your ComposeIO user password in order for the public key to show. 
+You also need to get the SSL Public key from the Deployment Overview page. You will need to login with your [ComposeIO](http://www.composeio.com) user password in order for the public key to show. 
 
 ![composeiosslpublickey.png](/public/images/composeiosslpublickey.png)
 
@@ -320,7 +320,7 @@ The results below the map should not be sorted. Refresh the page several times t
 ##Prototype with $sample
 The mongoDB $sample is a great way to to try out a visual design without needing all or even real data. At the early stage of the design, a quick visual can give you an idea if you are going down the right path.
 
-The map as data points works well for 5 or 10 points but what about 50 or 100?
+The map with data points works well for 5 or 10 points but what about 50 or 100?
 
 *request 100 rows, with sorting applied before*
 
@@ -328,6 +328,18 @@ http://127.0.0.1:8080/?rows=100&pos=1](http://127.0.0.1:8080/?rows=100&pos=1)
 
 ![](/public/images/worldmap10datapoints.png)
 
-The visual appeal and much of the meaning of the data is lost in the mess of the map. The design worked for a few but not mean, and certainly not all. 
+The visual appeal and much of the meaning of the data is lost in the mess of the map. Change the size of the points on the map.
 
-At this point, you might change the style of the point based on quantity.  
+*request 100 rows, with sorting applied before, smaller point size*
+
+http://127.0.0.1:8080/?rows=100&pos=1&radius=3](http://127.0.0.1:8080/?rows=100&pos=1&radius=3)
+
+![](/public/images/.png)
+
+Changing the point size as the number of items increases make sense. But what would the map look like if the point was bigger? 
+
+*request 100 rows, with sorting applied before, larger point size*
+
+http://127.0.0.1:8080/?rows=100&pos=1&radius=10](http://127.0.0.1:8080/?rows=100&pos=1&radius=10)
+
+![](/public/images/.png)
