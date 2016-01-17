@@ -117,7 +117,7 @@ mongodb://myname:myuser@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-p
 ```
 {
     "mongodb": {
-        "data": "/../data/mockdata.json",
+        "data": "/data/mockdata.json",
         "url": "mongodb://DBUSER:DBPASSWORD@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-portal.3.dblayer.com:10962/DATABASE?ssl=true",
         "collection": "mockdata",
         "certificatefile": "/clientcertificate.pem",
@@ -197,7 +197,7 @@ If you create an SSL database but don't pass the certificate, you won't be able 
 
 Once you run the script, make sure you can see the documents in the database's **mockdata** collection.
 
-![composeiodata.png](/../public/images/composeiodata.png)
+![insertdata.png](/../public/images/insertdata.png)
 
 <a =name='setup5'></a>
 ###Step 5: Convert latitude & longitude from string to floats

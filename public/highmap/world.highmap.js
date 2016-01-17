@@ -25,8 +25,16 @@ function loadWorld(){
     }
 
     var urlOrigin = url.data.attr.base + url.data.attr.path
+    
+    if (urlOrigin.indexOf("map/")>0){
+        urlOrigin += "data/";
+    } else {
+        urlOrigin += "map/data/";
+    }
+    
+    console.log(urlOrigin);
 
-    $.get( urlOrigin + "data/?rows=" + rows + "&pos=" + aggregationPipePosition, function( latLongPoints ) {
+    $.get( urlOrigin + "?rows=" + rows + "&pos=" + aggregationPipePosition, function( latLongPoints ) {
 
         var worldMap = Highcharts.maps['custom/world-continents'];
 

@@ -2,9 +2,9 @@ var MongoClient = require('mongodb').MongoClient,
   fs = require('fs'),
   path = require('path');
 
-var privateconfig = require(path.join(__dirname + '/config.json'));
+var privateconfig = require(path.join(__dirname + '/server/config.json'));
 console.log(privateconfig);
-var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
+var ca = [fs.readFileSync(path.join(__dirname + '/server/' + privateconfig.mongodb.certificatefile))];
 var data = fs.readFileSync(path.join(__dirname + privateconfig.mongodb.data), 'utf8');
 var json = JSON.parse(data);
 
