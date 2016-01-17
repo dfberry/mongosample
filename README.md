@@ -15,7 +15,7 @@ The demonstration video is available on [YouTube](https://youtu.be/uyPmDZ8llk4).
 
 ###Setup
 
-This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, such as the mongoDB with latitude/longitude data or a website that displays it, skip to the next. 
+This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [Compose](http://www.compose.io). Each step is broken out and explained. If there is a step you already have, such as the mongoDB with latitude/longitude data or a website that displays it, skip to the next. 
 
 1. get website running, display map with no data
 2. setup the mongoDB+ ssl database
@@ -64,17 +64,17 @@ Request the website to see the world map. The map should display successfully wi
 ![empty map](https://github.com/dfberry/mongosample/blob/master/public/images/emptymap.png)
 
 <a =name='setup2'></a>
-###Step 2: Setup the [ComposeIO](http://compose.io) MongoDB+ Deployment & Database
+###Step 2: Setup the [Compose](http://compose.io) MongoDB+ Deployment & Database
 
 You can move on to the next section, if you have a mongoDB deployment with SSL to use, and have the following items:
 * 	deployment public SSL key in the /server/clientcertificate.pem file
 * 	connection string for that deployment in /server/config.json 
 
-Create a new deployment on ComposeIO for a MongoDB+ database with an SSL connection. 
+Create a new deployment on Compose for a MongoDB+ database with an SSL connection. 
 
 ![mongoDB+SSL.png](https://github.com/dfberry/mongosample/blob/master/public/images/mongoDB%2BSSL.png)
 
-While still on the [ComposeIO](http://compose.io) backoffice, open the new deployment and copy the connection string. 
+While still on the [Compose](http://compose.io) backoffice, open the new deployment and copy the connection string. 
 
 ***Todo***: Copy connection string 
 
@@ -82,7 +82,7 @@ You will need the **entire connection string** in order to insert, update, and q
 
 ![composeio-ssl.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeio-ssl.png)
 
- You also need to get the SSL Public key from the [ComposeIO](http://compose.io) Deployment Overview page. You will need to login with your [ComposeIO](http://www.composeio.com) user password in order for the public key to show. 
+ You also need to get the SSL Public key from the [Compose](http://compose.io) Deployment Overview page. You will need to login with your [Compose](http://www.compose.io) user password in order for the public key to show. 
 
 ![composeiosslpublickey.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeiosslpublickey.png)
 

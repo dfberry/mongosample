@@ -5,7 +5,7 @@ var MongoClient = require('mongodb').MongoClient,
     privateconfig = require(path.join(__dirname + '/config.json'));
 
 // client certificate
-// generated from ComposeIO database overview page under "SSL Public key"
+// generated from Compose database overview page under "SSL Public key"
 var ca = [fs.readFileSync(path.join(__dirname + privateconfig.mongodb.certificatefile))];
 
 // database config including mongoDB ssl connection
