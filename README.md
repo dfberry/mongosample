@@ -42,8 +42,8 @@ The ***server*** is a nodeJs Express website using the native MongoDB driver. Th
 
 The ***client*** files are in the /public directory. The main web file is /highmap/world.highmap.html. It uses jQuery as the javascript framework, and [highmap](http://www.highcharts.com/maps/demo) as the mapping library which plots the points on the world map. The size of the map is controlled by the /public/highmap/world.highmap.css stylesheet for the map id. 
 
-<a name='setup'></a>
-<a name='setup1'></a>
+(#setup)
+(#setup1)
 ###Step 1: The NodeJS Express Website
 In order to get the website up and going you need to clone this repository, make sure node is installed, and install the dependency libraries found in package.json. 
 
