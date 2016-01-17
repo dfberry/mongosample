@@ -13,7 +13,7 @@ The demonstration video is available on [YouTube](https://youtu.be/uyPmDZ8llk4).
 
 ##Setup steps for the website
 
-###[Setup](#setup)
+###Setup
 
 This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, such as the mongoDB with latitude/longitude data or a website that displays it, skip to the next. 
 
@@ -72,7 +72,7 @@ You can move on to the next section, if you have a mongoDB deployment with SSL t
 
 Create a new deployment on ComposeIO for a MongoDB+ database with an SSL connection. 
 
-![mongoDB+SSL.png](/https://github.com/dfberry/mongosample/blob/master/public/images/mongoDB+SSL.png)
+![mongoDB+SSL.png](https://github.com/dfberry/mongosample/blob/master/public/images/mongoDB%2BSSL.png)
 
 While still on the [ComposeIO](http://compose.io) backoffice, open the new deployment and copy the connection string. 
 
