@@ -11,7 +11,7 @@ DB prototype developers can now use the $sample keyword in the aggregation pipe 
 ##The World Map as a visual example
 In order to show how the random sampling works in the mongoDB query, the website will show the world map and display random latitude/longitude points on the map. Each refresh of the page will produce new random points. Below the map, the docs will display. 
 
-![empty map](/../public/images/emptymap.png)
+![empty map](https://github.com/dfberry/mongosample/blob/master/public/images/emptymap.png)
 
 Once the website is up and working with data points, we will play with the query to see how the data points change in response. 
 
@@ -67,7 +67,7 @@ Request the website to see the world map. The map should display successfully wi
 
 [http://127.0.0.1:8080/map/](http://127.0.0.1:8080/map/)
 
-![empty map](/../public/images/emptymap.png)
+![empty map](https://github.com/dfberry/mongosample/blob/master/public/images/emptymap.png)
 
 <a =name='setup2'></a>
 ###Step 2: Setup the [ComposeIO](http://compose.io) MongoDB+ Deployment & Database
@@ -78,7 +78,7 @@ You can move on to the next section, if you have a mongoDB deployment with SSL t
 
 Create a new deployment on ComposeIO for a MongoDB+ database with an SSL connection. 
 
-![mongoDB+SSL.png](/../public/images/mongoDB+SSL.png)
+![mongoDB+SSL.png](/https://github.com/dfberry/mongosample/blob/master/public/images/mongoDB+SSL.png)
 
 While still on the [ComposeIO](http://compose.io) backoffice, open the new deployment and copy the connection string. 
 
@@ -86,11 +86,11 @@ While still on the [ComposeIO](http://compose.io) backoffice, open the new deplo
 
 You will need the **entire connection string** in order to insert, update, and query the data. The connection string uses a user and password at the beginning and the database name at the end.
 
-![composeio-ssl.png](/../public/images/composeio-ssl.png)
+![composeio-ssl.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeio-ssl.png)
 
  You also need to get the SSL Public key from the [ComposeIO](http://compose.io) Deployment Overview page. You will need to login with your [ComposeIO](http://www.composeio.com) user password in order for the public key to show. 
 
-![composeiosslpublickey.png](/../public/images/composeiosslpublickey.png)
+![composeiosslpublickey.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeiosslpublickey.png)
 
 ***Todo***: Save the entire **SSL Public key** to /server/clientcertificate.pem. 
 
@@ -98,7 +98,7 @@ If you save it somewhere else, you need to change the mongodb.certificatefile se
 
 You will also need to create a user in the Deployment's database. 
 
-![adduser.png](/../public/images/adduser.png)
+![adduser.png](https://github.com/dfberry/mongosample/blob/master/public/images/adduser.png)
 
 ***Todo***: Create new database user and password. Once you create the **user name** and **user password**, edit the connection string for the user, password, and database name.  
 
@@ -136,13 +136,13 @@ If you already have latitude and longitude data, or want to use the mock file in
 
 Use [Mockeroo](https://www.mockaroo.com) to generate your data. This allows you to get data, including latitude and longitude quickly and easily. Make sure to add the latitude and longitude data in json format.
 
-![mockaroo.png](/../public/images/mockaroo.png)
+![mockaroo.png](https://github.com/dfberry/mongosample/blob/master/public/images/mockaroo.png)
 
 Make sure you have at least 1000 records for a good show of randomness and save the file as **mockdata.json** in the data subdirectory.
 
 ***Todo***: Create mock data and save to /data/mockdata.json.
 
-![mockaroo.png](/../public/images/mockdata.png)
+![mockaroo.png](https://github.com/dfberry/mongosample/blob/master/public/images/mockdata.png)
 
 
 <a =name='setup4'></a>
@@ -197,7 +197,7 @@ If you create an SSL database but don't pass the certificate, you won't be able 
 
 Once you run the script, make sure you can see the documents in the database's **mockdata** collection.
 
-![insertdata.png](/../public/images/insertdata.png)
+![insertdata.png](https://github.com/dfberry/mongosample/blob/master/public/images/insertdata.png)
 
 <a =name='setup5'></a>
 ###Step 5: Convert latitude & longitude from string to floats
@@ -253,7 +253,7 @@ node update.js
 
 Once you run the script, make sure you can see the documents in the database's **mockdata** collection with the updated values.
 
-![composeiodata.png](/../public/images/composeiodata.png)
+![composeiodata.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeiodata.png)
 
 <a =name='setup6'></a>
 ###Step 6: Verify world map displays points of latitude & longitude
@@ -263,7 +263,7 @@ Refresh the website several times. This should show different points each time. 
 
 [http://127.0.0.1:8080/map/?rows=5](http://127.0.0.1:8080/map/?rows=5)
 
-![step6-5pts](/../public/images/step6-5pts.png)
+![step6-5pts](https://github.com/dfberry/mongosample/blob/master/public/images/step6-5pts.png)
 
 The warning of the [$sample behavior](https://docs.mongodb.org/manual/reference/operator/aggregation/sample/) says the data may duplicate within a single query. On this map that would appear as less than the number of requested data points. Did you see that in your tests? 
 
@@ -313,7 +313,7 @@ The count of rows is a parameter in the url to the server, when the data is requ
 
 [http://127.0.0.1:8080/map/?rows=10](http://127.0.0.1:8080/map/?rows=10)
 
-![worldmap10datapoints.png](/../public/images/worldmap10datapoints.png)
+![worldmap10datapoints.png](https://github.com/dfberry/mongosample/blob/master/public/images/worldmap10datapoints.png)
 
 <a name='show3'></a>
 ###Step 3: Change the aggregation pipeline order
@@ -325,11 +325,11 @@ The aggregation pipeline order is a parameter in the url to the server. You can 
 
 *Note: Only 0, 1, and 2 are valid values* 
 
-![row10pos1.png](/../public/images/row10pos1.png)
+![row10pos1.png](https://github.com/dfberry/mongosample/blob/master/public/images/row10pos1.png)
 
 The results below the map should be sorted. 
 
-![row10pos1data.png](/../public/images/row10pos1data.png)
+![row10pos1data.png](https://github.com/dfberry/mongosample/blob/master/public/images/row10pos1data.png)
 
 If the $sample position is moved to the 0 position, still before the sort is applied, the browser shows the same result. 
 
@@ -343,7 +343,7 @@ But, however, if the $sample is the last item (pos=2), the entire set is sorted,
 
 http://127.0.0.1:8080/map/?rows=10&pos=2](http://127.0.0.1:8080/map/?rows=10&pos=2)
 
-![rows10pos2data](/../public/images/rows10pos2data.png)
+![rows10pos2data](https://github.com/dfberry/mongosample/blob/master/public/images/rows10pos2data.png)
 
 Note that while the documents are returned, they are not in sorted order. 
 
@@ -359,7 +359,7 @@ The map with data points works well for 5 or 10 points but what about 50 or 100?
 
 http://127.0.0.1:8080/map/?rows=500](http://127.0.0.1:8080/map/?rows=500)
 
-![rows500.png](/../public/images/rows500.png)
+![rows500.png](https://github.com/dfberry/mongosample/blob/master/public/images/rows500.png)
 
 The visual appeal and much of the meaning of the data is lost in the mess of the map. Change the size of the points on the map.
 
@@ -367,7 +367,7 @@ The visual appeal and much of the meaning of the data is lost in the mess of the
 
 http://127.0.0.1:8080/map/?rows=500&radius=2](http://127.0.0.1:8080/map/?rows=500&radius=2)
 
-![rows500radius2](/../public/images/rows500radius2.png)
+![rows500radius2](https://github.com/dfberry/mongosample/blob/master/public/images/rows500radius2.png)
 
 ##Summary
 The $sample aggregation pipeline operator in mongoDB is a great way to build a prototype testing with random data. Building the page so that the visual design is controlled by the query string works well for quick changes with immediate feedback. 
