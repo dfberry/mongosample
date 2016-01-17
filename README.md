@@ -17,21 +17,20 @@ The demonstration video is available on [YouTube](https://youtu.be/uyPmDZ8llk4).
 
 This article assumes you have no mongodb, no website, and no data. It does assume you have an account on [ComposeIO](http://www.composeio.com). Each step is broken out and explained. If there is a step you already have, such as the mongoDB with latitude/longitude data or a website that displays it, skip to the next. 
 
-1. [get website running, display map with no data](#setup1)
-2. [setup the mongoDB+ ssl database](#setup2)
-3. [get mock data including latitude and longitude](#setup3)
-4. [insert the mock data into database](#setup4)
-5. [update database data types ](#setup5) 
-6. [verify world map displays data points](#setup6)
+1. get website running, display map with no data
+2. setup the mongoDB+ ssl database
+3. get mock data including latitude and longitude
+4. insert the mock data into database
+5. update database data types 
+6. verify world map displays data points
 
-###[Play](#show1)
-
+###Play
 When the website is works and the world map displays data points, let's play with it to see how $sample impacts the results.
 
-1. [understand the $sample operator](#show1)
-2. [change the row count](#show2)
-3. [change the aggregation pipeline order](#show3)
-4. [protoype with $sample](#show4)
+1. understand the $sample operator
+2. change the row count
+3. change the aggregation pipeline order
+4. protoype with $sample
  
 ###System architecture
 The ***data import script*** is /insert.js. It opens and inserts a json file into a mongoDB collection. It doesn't do any transformation. 
@@ -42,8 +41,7 @@ The ***server*** is a nodeJs Express website using the native MongoDB driver. Th
 
 The ***client*** files are in the /public directory. The main web file is /highmap/world.highmap.html. It uses jQuery as the javascript framework, and [highmap](http://www.highcharts.com/maps/demo) as the mapping library which plots the points on the world map. The size of the map is controlled by the /public/highmap/world.highmap.css stylesheet for the map id. 
 
-(#setup)
-(#setup1)
+
 ###Step 1: The NodeJS Express Website
 In order to get the website up and going you need to clone this repository, make sure node is installed, and install the dependency libraries found in package.json. 
 
@@ -126,7 +124,6 @@ mongodb://myname:myuser@aws-us-east-1-portal.2.dblayer.com:10907,aws-us-east-1-p
 }
 ```
 
-<a =name='setup3'></a>
 ###Step 3: The Prototype Data 
 If you already have latitude and longitude data, or want to use the mock file included at /data/mockdata.json, you can skip this step.
 
@@ -141,7 +138,6 @@ Make sure you have at least 1000 records for a good show of randomness and save 
 ![mockaroo.png](https://github.com/dfberry/mongosample/blob/master/public/images/mockdata.png)
 
 
-<a =name='setup4'></a>
 ###Step 4: Insert the Mock Data into the mockdata Collection
 The insert.js file converts the /data/mockdata.json file into the mockdata collection in the mongoDB database.
 
@@ -195,7 +191,6 @@ Once you run the script, make sure you can see the documents in the database's *
 
 ![insertdata.png](https://github.com/dfberry/mongosample/blob/master/public/images/insertdata.png)
 
-<a =name='setup5'></a>
 ###Step 5: Convert latitude & longitude from string to floats
 The mock data's latitude and longitude are strings. Use the **update.js** file to convert the strings to floats as well as create the geojson values. 
 
@@ -251,7 +246,6 @@ Once you run the script, make sure you can see the documents in the database's *
 
 ![composeiodata.png](https://github.com/dfberry/mongosample/blob/master/public/images/composeiodata.png)
 
-<a =name='setup6'></a>
 ###Step 6: Verify world map displays points of latitude & longitude
 Refresh the website several times. This should show different points each time. The variation of randomness should catch your eye. Is it widely random, or not as widely random as you would like?
 
@@ -266,12 +260,11 @@ The warning of the [$sample behavior](https://docs.mongodb.org/manual/reference/
 ##How $sample impacts the results
 Now that the website works, let's play with it to see how $sample impacts the results.
 
-1. [understand the $sample code in /server/query.js](#show1)
-2. [change the row count](#show2)
-3. [change the aggregation pipeline order](#show3)
-4. [prototype with $sample](#show4)
+1. understand the $sample code in /server/query.js
+2. change the row count
+3. change the aggregation pipeline order
+4. prototype with $sample
 
-<a name='show1'></a>
 ###Step 1: Understand the $sample operator in /server/query.js
 The [$sample](https://docs.mongodb.org/manual/reference/operator/aggregation/sample/#pipe._S_sample) operator controls random sampling of the query in the [aggregation pipeline](https://docs.mongodb.org/manual/core/aggregation-pipeline/). 
 
@@ -301,7 +294,6 @@ The location of $sample is controlled by the pos value in the url. If pos isn't 
 
 We will play with the position in [step 3](#step3). 
 
-<a name='show2'></a>
 ###Step 2: Change the row count
 The count of rows is a parameter in the url to the server, when the data is requested. Change the url to indicate 10 rows returned.
 
@@ -311,7 +303,6 @@ The count of rows is a parameter in the url to the server, when the data is requ
 
 ![worldmap10datapoints.png](https://github.com/dfberry/mongosample/blob/master/public/images/worldmap10datapoints.png)
 
-<a name='show3'></a>
 ###Step 3: Change the aggregation pipeline order
 The aggregation pipeline order is a parameter in the url to the server. You can control it with the 'pos' name/value pair. The following url is the same as [Step 2](#show2) but the aggregation pipeline index is explicitly set. 
 
@@ -345,7 +336,6 @@ Note that while the documents are returned, they are not in sorted order.
 
 *If they are in sorted order, it isn't because they were sorted, but because the random pick happened that way on accident, not on purpose.* 
 
-<a name='show4'></a>
 ##Step 4: Prototype with $sample
 The mongoDB $sample operator is a great way to to try out a visual design without needing all the data. At the early stage of the design, a quick visual can give you an idea if you are on the right path.
 
