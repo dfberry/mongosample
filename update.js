@@ -10,7 +10,6 @@ MongoClient.connect(privateconfig.mongodb.url, {
     mongos: {
         ssl: true,
         sslValidate: true,
-        ca: ca,
         sslCA: ca,
         poolSize: 1,
         reconnectTries: 1
