@@ -97,6 +97,8 @@ var mongoQuery = function(samplesize, aggregationPipelinePosition, callback){
         config.sample.index = aggregationPipelinePosition;
     } 
  
+    console.log(JSON.stringify(config.sample));
+ 
     // connect to database, return mongoDB docs
     MongoClient.connect(config.url,config.options, function (err, db) {
         aggregate(db, config, function (err, result) {
