@@ -25,12 +25,12 @@ This article assumes you have no mongodb, no website, and no data. It does assum
 6. verify world map displays data points
 
 ###Play
-When the website is works and the world map displays data points, let's play with it to see how $sample impacts the results.
+When the website works and the world map displays data points, let's play with it to see how $sample impacts the results.
 
 1. understand the $sample operator
 2. change the row count
 3. change the aggregation pipeline order
-4. protoype with $sample
+4. prototype with $sample
  
 ###System architecture
 The ***data import script*** is /insert.js. It opens and inserts a json file into a mongoDB collection. It doesn't do any transformation. 
